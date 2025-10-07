@@ -35,7 +35,11 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 # --- Initialize APIs and NLP ---
 client = wolframalpha.Client(WOLFRAM_APP_ID)
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    print("⚠ Model 'en_core_web_sm' not found. Using blank English model instead.")
+    nlp = spacy.blank("en")
 
 # --- Helper Functions ---
 def get_time():
@@ -167,11 +171,12 @@ def process_command(text):
             continue
 
         # --- Time ---
-        if "time" in cmd:
-            from datetime import datetime
-            from zoneinfo import ZoneInfo
+        # --- Time ---
+        if any(word in cmd for word in ["time", "current time", "what time", "tell time", "now time"]):
             now = datetime.now(ZoneInfo("Asia/Kolkata"))
-            responses.append(f"The current time is {now.strftime('%I:%M %p')}")
+            current_time = now.strftime("%I:%M %p")
+            response = f"The current time is {current_time}."
+            responses.append(response)
             continue
 
         # --- Weather ---
