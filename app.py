@@ -10,8 +10,7 @@ import os
 import requests
 import wikipedia
 import threading
-import random
-from threading import Thread
+
 # --- Setup ---
 app = Flask(__name__)
 
@@ -19,12 +18,10 @@ app = Flask(__name__)
 def speak_async(text):
     if os.getenv("RENDER") == "true":
         return  # Skip TTS on Render
-
     def run():
         engine = pyttsx3.init()
         engine.say(text)
         engine.runAndWait()
-
     threading.Thread(target=run).start()
 
 # --- Load environment variables ---
@@ -76,7 +73,7 @@ def set_reminder(msg):
         return f"Sure, I will remind you at {time_str}."
     else:
         return "Sure, I will remind you soon."
-
+    
 def solve_math(query):
     query_lower = query.lower()
 
@@ -96,7 +93,8 @@ def solve_math(query):
         "times": "*", "multiplied by": "*", "into": "*",
         "divided by": "/", "over": "/",
         "square of": "**2", "cube of": "**3",
-        "to the power of": "**", "power": "**"
+        "to the power of": "**",
+        "power": "**"
     }
     for k, v in replacements.items():
         query_lower = query_lower.replace(k, v)
@@ -105,13 +103,16 @@ def solve_math(query):
     query_clean = re.sub(r"(calculate|solve|what is|evaluate|find|equals|the|answer|result of)", "", query_lower)
     query_clean = re.sub(r"[^0-9+\-*/(). ]", "", query_clean).strip()
 
+    # If the query is empty, stop
     if not query_clean:
         return "Sorry, I couldn't understand the math expression."
 
+    # Try evaluating with eval()
     try:
         result = eval(query_clean)
         return f"The answer is {result}."
     except Exception:
+        # Try WolframAlpha as a backup
         try:
             res = client.query(query)
             answer = next(res.results).text
@@ -126,16 +127,18 @@ def search_wikipedia(query):
         return "Sorry, I couldn't find information on that."
 
 # --- NLP Command Processor with Multi-Command Handling ---
+
+# --- NLP Command Processor with Multi-Command Handling ---
 def process_command(text):
     text_lower = text.lower().strip()
-    commands = re.split(r'\band\b|;|,', text_lower)
+    commands = re.split(r'\band\b|;|,', text_lower)  # Split multiple commands
     responses = []
 
     for cmd in commands:
         cmd = cmd.strip()
-
         # --- Greetings ---
         greetings = ["hi", "hello", "hey", "good morning", "good afternoon", "good evening"]
+        import random
         if any(re.search(rf'\b{greet}\b', cmd) for greet in greetings):
             responses.append(random.choice([
                 "Hello! How can I assist you today?",
@@ -146,25 +149,35 @@ def process_command(text):
 
         # --- Browser Commands ---
         if "open browser" in cmd or "launch browser" in cmd:
-            responses.append({"text": "Click here to open Google", "url": "https://www.google.com"})
+            if os.getenv("RENDER") == "true":
+                responses.append("Click here to open Google: https://www.google.com")
+            else:
+                import webbrowser
+                webbrowser.open("https://www.google.com")
+                responses.append("Opening your web browser.")
             continue
 
-        if "open youtube" in cmd or "launch youtube" in cmd:
-            responses.append({"text": "Click here to open YouTube", "url": "https://www.youtube.com"})
+        if "open youtube" in cmd:
+            if os.getenv("RENDER") == "true":
+                responses.append("Click here to open YouTube: https://www.youtube.com")
+            else:
+                import webbrowser
+                webbrowser.open("https://www.youtube.com")
+                responses.append("Opening YouTube in your browser.")
             continue
 
         # --- Time ---
-        if any(word in cmd for word in ["time", "current time", "what time", "tell time", "now time"]):
+        if "time" in cmd:
             responses.append(get_time())
             continue
 
         # --- Weather ---
         if "weather" in cmd:
             match = re.search(r'weather in ([a-zA-Z\s]+)', cmd)
-            city = match.group(1).strip() if match else None
-            if city:
+            if match:
+                city = match.group(1).strip()
                 responses.append(get_weather(city))
-            continue
+                continue
 
         # --- News ---
         if "news" in cmd:
@@ -174,16 +187,16 @@ def process_command(text):
             continue
 
         # --- Math ---
-        if any(word in cmd for word in ["calculate","solve","what is","compute","evaluate"]) \
-                or re.match(r"^[0-9+\-*/(). ]+$", cmd):
+        if any(word in cmd for word in ["calculate", "solve", "what is", "compute", "evaluate"]) or re.match(r"^[0-9+\-*/(). ]+$", cmd):
             responses.append(solve_math(cmd))
             continue
 
         # --- Wikipedia ---
         if any(phrase in cmd for phrase in ["who is", "what is", "tell me about"]):
             topic = cmd.replace("who is","").replace("what is","").replace("tell me about","").strip()
-            responses.append(search_wikipedia(topic))
-            continue
+            if topic:
+                responses.append(search_wikipedia(topic))
+                continue
 
         # --- Reminder ---
         if "remind" in cmd:
@@ -191,26 +204,11 @@ def process_command(text):
             continue
 
         # --- Fallback ---
-        responses.append(f"I couldn't understand that: {cmd}")
+        responses.append("Sorry, I couldn't understand that part: " + cmd)
 
-    # Prepare final response
-    # If all responses are strings, join into one string; otherwise return list with dicts
-    if all(isinstance(r, str) for r in responses):
-        final_response = " ".join(responses)
-    else:
-        final_response = responses
-
-    # Optional: speak asynchronously
-    def speak_async(text):
-        def run():
-            engine = pyttsx3.init()
-            engine.say(text)
-            engine.runAndWait()
-        Thread(target=run).start()
-
-    speak_async(" ".join([r["text"] if isinstance(r, dict) else r for r in responses]))
+    final_response = " ".join(responses)
+    speak_async(final_response)
     return final_response
-
 
 
 # --- Flask Routes ---
