@@ -10,10 +10,8 @@ import os
 import requests
 import wikipedia
 import threading
-from threading import Thread
-from wolframalpha import Client
 import random
-
+from threading import Thread
 # --- Setup ---
 app = Flask(__name__)
 
@@ -21,10 +19,12 @@ app = Flask(__name__)
 def speak_async(text):
     if os.getenv("RENDER") == "true":
         return  # Skip TTS on Render
+
     def run():
         engine = pyttsx3.init()
         engine.say(text)
         engine.runAndWait()
+
     threading.Thread(target=run).start()
 
 # --- Load environment variables ---
@@ -35,11 +35,7 @@ NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 
 # --- Initialize APIs and NLP ---
 client = wolframalpha.Client(WOLFRAM_APP_ID)
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    print("⚠ Model 'en_core_web_sm' not found. Using blank English model instead.")
-    nlp = spacy.blank("en")
+nlp = spacy.load("en_core_web_sm")
 
 # --- Helper Functions ---
 def get_time():
@@ -80,7 +76,7 @@ def set_reminder(msg):
         return f"Sure, I will remind you at {time_str}."
     else:
         return "Sure, I will remind you soon."
-    
+
 def solve_math(query):
     query_lower = query.lower()
 
@@ -93,16 +89,13 @@ def solve_math(query):
     for word, digit in num_words.items():
         query_lower = re.sub(rf"\b{word}\b", digit, query_lower)
 
-    # Handle squares and cubes
-    query_lower = re.sub(r'square of (\d+)', r'(\1**2)', query_lower)
-    query_lower = re.sub(r'cube of (\d+)', r'(\1**3)', query_lower)
-
     # Replace math phrases
     replacements = {
         "plus": "+", "add": "+",
         "minus": "-", "subtract": "-",
         "times": "*", "multiplied by": "*", "into": "*",
         "divided by": "/", "over": "/",
+        "square of": "**2", "cube of": "**3",
         "to the power of": "**", "power": "**"
     }
     for k, v in replacements.items():
@@ -133,16 +126,9 @@ def search_wikipedia(query):
         return "Sorry, I couldn't find information on that."
 
 # --- NLP Command Processor with Multi-Command Handling ---
-def linkify(text):
-    url_regex = r'(https?://[^\s]+)'
-    return re.sub(url_regex, r'<a href="\1" target="_blank">\1</a>', text)
-
-
-# --- NLP Command Processor with Multi-Command Handling ---
-
 def process_command(text):
     text_lower = text.lower().strip()
-    commands = re.split(r'\band\b|;', text_lower)  # Split multiple commands
+    commands = re.split(r'\band\b|;|,', text_lower)
     responses = []
 
     for cmd in commands:
@@ -160,23 +146,16 @@ def process_command(text):
 
         # --- Browser Commands ---
         if "open browser" in cmd or "launch browser" in cmd:
-            url = "https://www.google.com"
-            # On Render, just send clickable link
-            responses.append({"text": "Click here to open Google", "url": url})
+            responses.append({"text": "Click here to open Google", "url": "https://www.google.com"})
             continue
 
         if "open youtube" in cmd or "launch youtube" in cmd:
-            url = "https://www.youtube.com"
-            responses.append({"text": "Click here to open YouTube", "url": url})
+            responses.append({"text": "Click here to open YouTube", "url": "https://www.youtube.com"})
             continue
 
         # --- Time ---
-        # --- Time ---
         if any(word in cmd for word in ["time", "current time", "what time", "tell time", "now time"]):
-            now = datetime.now(ZoneInfo("Asia/Kolkata"))
-            current_time = now.strftime("%I:%M %p")
-            response = f"The current time is {current_time}."
-            responses.append(response)
+            responses.append(get_time())
             continue
 
         # --- Weather ---
@@ -184,64 +163,31 @@ def process_command(text):
             match = re.search(r'weather in ([a-zA-Z\s]+)', cmd)
             city = match.group(1).strip() if match else None
             if city:
-                from requests import get
-                OPENWEATHER_KEY = os.getenv("OPENWEATHER_KEY")
-                try:
-                    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_KEY}&units=metric"
-                    data = get(url).json()
-                    if data["cod"] == 200:
-                        temp = data["main"]["temp"]
-                        desc = data["weather"][0]["description"].capitalize()
-                        responses.append(f"The weather in {city} is {desc} with a temperature of {temp}°C.")
-                    else:
-                        responses.append("Sorry, I couldn't find that city.")
-                except:
-                    responses.append("Error retrieving weather information.")
+                responses.append(get_weather(city))
             continue
 
         # --- News ---
         if "news" in cmd:
             match = re.search(r'news on ([a-zA-Z\s]+)', cmd)
             topic = match.group(1).strip() if match else "AI"
-            NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-            try:
-                url = f"https://newsapi.org/v2/everything?q={topic}&apiKey={NEWS_API_KEY}&language=en&pageSize=3"
-                data = requests.get(url).json()
-                if data.get("status") == "ok" and data.get("articles"):
-                    headlines = [article["title"] for article in data["articles"][:3]]
-                    responses.append(f"Top {topic} news: {'; '.join(headlines)}")
-                else:
-                    responses.append(f"No news found on {topic}.")
-            except:
-                responses.append("Error fetching news.")
+            responses.append(get_latest_news(topic))
             continue
 
         # --- Math ---
-        # --- Math Command Handler ---
         if any(word in cmd for word in ["calculate","solve","what is","compute","evaluate"]) \
-            or re.match(r"^[0-9+\-*/(). ]+$", cmd):
-    # Call your existing solve_math function
+                or re.match(r"^[0-9+\-*/(). ]+$", cmd):
             responses.append(solve_math(cmd))
             continue
 
         # --- Wikipedia ---
         if any(phrase in cmd for phrase in ["who is", "what is", "tell me about"]):
             topic = cmd.replace("who is","").replace("what is","").replace("tell me about","").strip()
-            try:
-                summary = wikipedia.summary(topic, sentences=2)
-                responses.append(summary)
-            except:
-                responses.append("Sorry, I couldn't find information on that.")
+            responses.append(search_wikipedia(topic))
             continue
 
         # --- Reminder ---
         if "remind" in cmd:
-            match = re.search(r'(\d{1,2}(:\d{2})?\s?(am|pm)?)', cmd, re.IGNORECASE)
-            if match:
-                time_str = match.group(1).strip()
-                responses.append(f"Sure, I will remind you at {time_str}.")
-            else:
-                responses.append("Sure, I will remind you soon.")
+            responses.append(set_reminder(cmd))
             continue
 
         # --- Fallback ---
@@ -265,6 +211,8 @@ def process_command(text):
     speak_async(" ".join([r["text"] if isinstance(r, dict) else r for r in responses]))
     return final_response
 
+
+
 # --- Flask Routes ---
 @app.route('/')
 def index():
@@ -275,7 +223,6 @@ def handle_command():
     data = request.json
     user_input = data.get("command", "")
     response = process_command(user_input)
-    speak_async(response)
     return jsonify({"response": response})
 
 if __name__ == "__main__":
