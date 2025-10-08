@@ -49,12 +49,15 @@ def solve_math(query):
     for word, digit in num_words.items():
         query_lower = query_lower.replace(word, digit)
 
+    # Handle math patterns
     query_lower = re.sub(r"square of (\d+)", r"(\1**2)", query_lower)
     query_lower = re.sub(r"cube of (\d+)", r"(\1**3)", query_lower)
     query_lower = re.sub(r"(\d+)\s+to the power of\s+(\d+)", r"(\1**\2)", query_lower)
     query_lower = query_lower.replace("divided by", "/").replace("over", "/")
     query_lower = query_lower.replace("multiplied by", "*").replace("times", "*")
-    query_lower = query_lower.replace("plus", "+").replace("minus", "-").replace("subtracted by","-")
+    query_lower = query_lower.replace("x", "*")  # ✅ FIX added here
+    query_lower = query_lower.replace("plus", "+").replace("minus", "-").replace("subtracted by", "-")
+
     query_clean = re.sub(r"[^0-9+\-*/(). ]", "", query_lower)
 
     try:
@@ -67,6 +70,7 @@ def solve_math(query):
             return f"The answer is: {answer}"
         except:
             return "Sorry, I couldn't solve that."
+
 
 def set_reminder(msg):
     time_match = re.search(r'(\d{1,2}(:\d{2})?\s?(am|pm)?)', msg, re.IGNORECASE)
