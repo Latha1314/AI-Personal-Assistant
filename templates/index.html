@@ -155,21 +155,50 @@ function addUserMessage(txt){
 }
 
 function addAssistantMessageTyped(txt){
-  const el=document.createElement('div');
-  el.className='self-start bg-white/10 border-l-2 border-accent1/30 p-3 rounded-xl text-cyan-50 max-w-[78%] shadow-md';
-  const tw=document.createElement('span');
-  tw.className='typewriter';
+  const el = document.createElement('div');
+  el.className = 'self-start bg-white/10 border-l-2 border-accent1/30 p-3 rounded-xl text-cyan-50 max-w-[78%] shadow-md';
+  const tw = document.createElement('span');
+  tw.className = 'typewriter';
   el.appendChild(tw);
   chatArea.appendChild(el);
-  chatArea.scrollTop=chatArea.scrollHeight;
+  chatArea.scrollTop = chatArea.scrollHeight;
 
-  let i=0, speed=18;
+  let i = 0, speed = 18;
+
   function type(){
-    tw.innerHTML=txt.slice(0,i);
-    i++;
-    chatArea.scrollTop=chatArea.scrollHeight;
-    if(i<=txt.length) setTimeout(type,speed);
-    else speak(tw.textContent);
+    if(i <= txt.length){
+      tw.innerHTML = txt.slice(0, i);
+      i++;
+      chatArea.scrollTop = chatArea.scrollHeight;
+      setTimeout(type, speed);
+    } else {
+      const plainText = tw.textContent || tw.innerText;
+      speak(plainText);
+
+      // ✅ Handle "Open Browser" → show only "Click here to open Google"
+      if (txt.toLowerCase().includes("click here to open google")) {
+        const link = document.createElement('a');
+        link.href = 'https://www.google.com';
+        link.target = '_blank';
+        link.textContent = 'Click here to open Google';
+        link.className = 'block mt-2 text-accent1 font-semibold hover:text-accent3 no-underline';
+        el.innerHTML = '';
+        el.appendChild(link);
+        return;
+      }
+
+      // ✅ Handle "Open YouTube" → show only "Click here to open YouTube"
+      if (txt.toLowerCase().includes("open youtube") || txt.toLowerCase().includes("click here to open youtube")) {
+        const link = document.createElement('a');
+        link.href = 'https://www.youtube.com';
+        link.target = '_blank';
+        link.textContent = 'Click here to open YouTube';
+        link.className = 'block mt-2 text-accent1 font-semibold hover:text-accent3 no-underline';
+        el.innerHTML = '';
+        el.appendChild(link);
+        return;
+      }
+    }
   }
   type();
 }
