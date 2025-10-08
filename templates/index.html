@@ -1,48 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>AI Aura — Personal Assistant</title>
-<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712100.png">
-<script src="https://cdn.tailwindcss.com"></script>
-
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        accent1: '#00f0d1',
-        accent2: '#ff2ec4',
-        accent3: '#6ea8ff',
-        muted: '#a8f0ee33',
-      },
-      boxShadow: {
-        glass: '0 10px 40px rgba(11,14,26,0.6)',
-        neon: '0 12px 60px rgba(0,0,0,0.6)',
-      },
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Aura — Personal Assistant</title>
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712100.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          accent1: '#00f0d1',
+          accent2: '#ff2ec4',
+          accent3: '#6ea8ff',
+          muted: '#a8f0ee33',
+        },
+        boxShadow: {
+          glass: '0 10px 40px rgba(11,14,26,0.6)',
+          neon: '0 12px 60px rgba(0,0,0,0.6)',
+        },
+      }
     }
   }
-}
-</script>
-
-<style>
-body {
-  background:
-    radial-gradient(800px 400px at 20% 20%, rgba(0, 255, 255, 0.15), transparent 70%),
-    radial-gradient(700px 300px at 80% 80%, rgba(59, 130, 246, 0.12), transparent 70%),
-    #001322;
-}
-.typewriter { display:inline-block; white-space:pre-wrap; overflow:hidden; }
-.orb::after {
-  content:'';
-  position:absolute;
-  inset:0;
-  border-radius:9999px;
-  background: conic-gradient(from 120deg, rgba(0,240,209,0.06), rgba(110,168,255,0.03));
-  mix-blend-mode: screen;
-}
-</style>
+  </script>
+  <style>
+  body {
+    background:
+      radial-gradient(800px 400px at 20% 20%, rgba(0, 255, 255, 0.15), transparent 70%),
+      radial-gradient(700px 300px at 80% 80%, rgba(59, 130, 246, 0.12), transparent 70%),
+      #001322;
+  }
+  .typewriter { display:inline-block; white-space:pre-wrap; overflow:hidden; }
+  .orb::after {
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:9999px;
+    background: conic-gradient(from 120deg, rgba(0,240,209,0.06), rgba(110,168,255,0.03));
+    mix-blend-mode: screen;
+  }
+  </style>
 </head>
 
 <body class="text-white flex justify-center min-h-screen items-start py-10">
@@ -56,39 +54,16 @@ body {
         <div class="absolute inset-[-8px] rounded-full opacity-0 scale-90 transition-all duration-200"></div>
         <div class="orb-icon w-[86px] h-[86px] rounded-full bg-white/5 flex items-center justify-center text-accent3 font-bold text-lg">AURA</div>
       </div>
-      <div id="statusText" class="text-xs text-[var(--muted)] text-center opacity-70">Ready — say "Open browser" or ask me anything</div>
-      <div id="wave" class="flex items-end justify-center gap-[6px] mt-3 h-10">
-        <div class="bar w-[6px] h-[6px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
-        <div class="bar w-[6px] h-[14px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
-        <div class="bar w-[6px] h-[8px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
-        <div class="bar w-[6px] h-[18px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
-        <div class="bar w-[6px] h-[10px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-3 w-full mt-6">
-      <button class="qa-btn flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 text-cyan-100 hover:-translate-y-1 transition transform hover:shadow-xl" onclick="prefill('Open browser')">
-        <div class="qa-icon w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-accent1 to-accent3 text-[#001726] font-bold shadow-lg">G</div>
-        <div class="flex-1">
-          <div class="font-bold">Open Browser</div>
-          <div class="text-xs text-[var(--muted)]">Opens Google in a new tab</div>
-        </div>
-      </button>
-
-      <button class="qa-btn flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 text-cyan-100 hover:-translate-y-1 transition transform hover:shadow-xl" onclick="prefill('Open YouTube')">
-        <div class="qa-icon w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#ff2ec4] to-[#6ea8ff] text-[#001726] font-bold shadow-lg">YT</div>
-        <div class="flex-1">
-          <div class="font-bold">Open YouTube</div>
-          <div class="text-xs text-[var(--muted)]">Opens YouTube in a new tab</div>
-        </div>
-      </button>
+      <div id="statusText" class="text-xs text-[var(--muted)] text-center opacity-70">Ready — say "Open browser" or "Open YouTube"</div>
     </div>
   </aside>
 
   <!-- RIGHT PANEL -->
   <section class="bg-white/5 border border-cyan-400/10 rounded-2xl p-4 flex flex-col shadow-neon min-h-[520px]">
     <div class="flex items-center justify-between mb-3">
-      <div class="text-lg font-bold flex items-center gap-2">AI Aura <span class="text-xs text-[var(--muted)] font-semibold">• Live Assistant</span></div>
+      <div class="text-lg font-bold flex items-center gap-2">
+        AI Aura <span class="text-xs text-[var(--muted)] font-semibold">• Live Assistant</span>
+      </div>
       <div id="chip" class="bg-gradient-to-r from-accent1/20 to-accent3/10 px-3 py-1 text-xs rounded-full border border-accent1/10 text-[var(--muted)]">Voice: Female</div>
     </div>
 
@@ -103,7 +78,7 @@ body {
 </div>
 
 <script>
-// ------------------- Voice Setup -------------------
+// ------------------- VOICE SETUP -------------------
 let voicesReady=false, femaleVoice=null;
 function loadVoices(){
   let vs=speechSynthesis.getVoices();
@@ -124,27 +99,50 @@ function speak(text){
   speechSynthesis.speak(u);
 }
 
-// ------------------- Chat & Wave -------------------
-const orb=document.getElementById('orb');
-const statusText=document.getElementById('statusText');
-const waveBars=document.querySelectorAll('.bar');
+// ------------------- CHAT -------------------
 const chatArea=document.getElementById('chatbox-area');
+function addAssistantMessageTyped(txt) {
+  const el = document.createElement('div');
+  el.className =
+    'self-start bg-white/10 border-l-2 border-accent1/30 p-3 rounded-xl text-cyan-50 max-w-[78%] shadow-md';
+  const tw = document.createElement('span');
+  tw.className = 'typewriter';
+  el.appendChild(tw);
+  chatArea.appendChild(el);
+  chatArea.scrollTop = chatArea.scrollHeight;
+
+  let i = 0,
+    speed = 18;
+  function type() {
+    tw.innerHTML = txt.slice(0, i);
+    i++;
+    chatArea.scrollTop = chatArea.scrollHeight;
+    if (i <= txt.length) {
+      setTimeout(type, speed);
+    } else {
+      // ✅ Style all hyperlinks as clear clickable buttons
+      const links = tw.querySelectorAll('a');
+      links.forEach((link) => {
+        link.className =
+          'inline-block mt-2 px-3 py-1 bg-gradient-to-r from-accent1 to-accent3 text-[#001726] font-semibold rounded-lg shadow-md hover:scale-105 transition-transform duration-150';
+        const domain = link.href.split('/')[2].replace('www.', '');
+        link.innerHTML = '👉 Click here to open ' + domain.charAt(0).toUpperCase() + domain.slice(1);
+      });
+
+      // ✅ Voice should not include emoji or URLs
+      const plainText = tw.textContent
+        .replace(/👉/g, '')        // remove icon
+        .replace(/https?:\/\/\S+/g, '') // remove URL
+        .trim();
+      if (plainText) speak(plainText);
+    }
+  }
+  type();
+}
+// ------------------- MESSAGE SENDER -------------------
 const input=document.getElementById('inputField');
 const sendBtn=document.getElementById('sendBtn');
 const micBtn=document.getElementById('micBtn');
-
-function animateWave(active){
-  if(active){
-    orb.classList.add('scale-105');
-    statusText.textContent='Listening...';
-    window.waveInterval=setInterval(()=>{ waveBars.forEach(b=>b.style.height=(6+Math.random()*30)+'px'); },120);
-  } else {
-    orb.classList.remove('scale-105');
-    statusText.textContent='Ready — say "Open browser" or ask me anything';
-    clearInterval(window.waveInterval);
-    waveBars.forEach(b=>b.style.height='8px');
-  }
-}
 
 function addUserMessage(txt){
   const el=document.createElement('div');
@@ -154,76 +152,10 @@ function addUserMessage(txt){
   chatArea.scrollTop=chatArea.scrollHeight;
 }
 
-function addAssistantMessageTyped(txt){
-  const el = document.createElement('div');
-  el.className = 'self-start bg-white/10 border-l-2 border-accent1/30 p-3 rounded-xl text-cyan-50 max-w-[78%] shadow-md';
-  const tw = document.createElement('span');
-  tw.className = 'typewriter';
-  el.appendChild(tw);
-  chatArea.appendChild(el);
-  chatArea.scrollTop = chatArea.scrollHeight;
-
-  let i = 0, speed = 18;
-
-  function type(){
-    if(i <= txt.length){
-      tw.innerHTML = txt.slice(0, i);
-      i++;
-      chatArea.scrollTop = chatArea.scrollHeight;
-      setTimeout(type, speed);
-    } else {
-      const plainText = tw.textContent || tw.innerText;
-      speak(plainText);
-
-      // ✅ Handle "Open Browser" → show only "Click here to open Google"
-      if (txt.toLowerCase().includes("click here to open google")) {
-        const link = document.createElement('a');
-        link.href = 'https://www.google.com';
-        link.target = '_blank';
-        link.textContent = 'Click here to open Google';
-        link.className = 'block mt-2 text-accent1 font-semibold hover:text-accent3 no-underline';
-        el.innerHTML = '';
-        el.appendChild(link);
-        return;
-      }
-
-      // ✅ Handle "Open YouTube" → show only "Click here to open YouTube"
-      if (txt.toLowerCase().includes("open youtube") || txt.toLowerCase().includes("click here to open youtube")) {
-        const link = document.createElement('a');
-        link.href = 'https://www.youtube.com';
-        link.target = '_blank';
-        link.textContent = 'Click here to open YouTube';
-        link.className = 'block mt-2 text-accent1 font-semibold hover:text-accent3 no-underline';
-        el.innerHTML = '';
-        el.appendChild(link);
-        return;
-      }
-    }
-  }
-  type();
-}
-
-// ------------------- Voice Recognition -------------------
-function startListening(){
-  if(!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)){
-    alert('Speech recognition not supported.');
-    return;
-  }
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  const recog=new SR();
-  recog.lang='en-US';
-  recog.onstart=()=>{animateWave(true);micBtn.textContent='●';};
-  recog.onend=()=>{animateWave(false);micBtn.textContent='🎤';};
-  recog.onresult=(ev)=>{const text=ev.results[0][0].transcript;animateWave(false);micBtn.textContent='🎤';sendCommand(text);};
-  recog.start();
-}
-
-// ------------------- Send Command -------------------
 async function sendCommand(commandText){
   if(!commandText) return;
   addUserMessage(commandText);
   input.value='';
-  statusText.textContent='Processing...';
 
   try{
     const res=await fetch('/command',{
@@ -232,23 +164,33 @@ async function sendCommand(commandText){
       body:JSON.stringify({command:commandText})
     });
     const data=await res.json();
-    let reply=data.response;
-    addAssistantMessageTyped(reply);
-    statusText.textContent='Responded';
+    addAssistantMessageTyped(data.response);
   }catch(e){
     addAssistantMessageTyped('⚠ Unable to reach the server.');
-    statusText.textContent='Error';
   }
 }
 
-// ------------------- Event Listeners -------------------
 sendBtn.addEventListener('click',()=>{const t=input.value.trim();if(t)sendCommand(t);});
 input.addEventListener('keydown',(e)=>{if(e.key==='Enter'){const t=input.value.trim();if(t)sendCommand(t);}});
+
+function startListening(){
+  if(!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)){
+    alert('Speech recognition not supported.');
+    return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const recog=new SR();
+  recog.lang='en-US';
+  recog.onresult=(ev)=>{
+    const text=ev.results[0][0].transcript;
+    sendCommand(text);
+  };
+  recog.start();
+}
 micBtn.addEventListener('click',()=>startListening());
-
-window.addEventListener('load',()=>{setTimeout(()=>addAssistantMessageTyped("Hi — I'm Aura. I can open your browser, YouTube, or answer any questions."),600);});
+window.addEventListener('load',()=>{setTimeout(()=>addAssistantMessageTyped("Hi — I'm Aura. I can open your Browser, YouTube, or Answer any questions."),600);});
 function prefill(txt){input.value=txt;input.focus();}
-</script>
 
+</script>
 </body>
 </html>
