@@ -77,7 +77,7 @@ def set_reminder(msg):
 def solve_math(query):
     query_lower = query.lower()
 
-    # Replace number words
+    # Convert number words to digits
     num_words = {
         "zero": "0", "one": "1", "two": "2", "three": "3", "four": "4",
         "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9",
@@ -86,37 +86,38 @@ def solve_math(query):
     for word, digit in num_words.items():
         query_lower = re.sub(rf"\b{word}\b", digit, query_lower)
 
-    # Replace math phrases
-    replacements = {
-        "plus": "+", "add": "+",
-        "minus": "-", "subtract": "-",
-        "times": "*", "multiplied by": "*", "into": "*",
-        "divided by": "/", "over": "/",
-        "square of": "**2", "cube of": "**3",
-        "to the power of": "**",
-        "power": "**"
-    }
-    for k, v in replacements.items():
-        query_lower = query_lower.replace(k, v)
+    # Handle common math phrases
+    query_lower = re.sub(r"square of (\d+)", r"(\1**2)", query_lower)
+    query_lower = re.sub(r"cube of (\d+)", r"(\1**3)", query_lower)
+    query_lower = re.sub(r"(\d+)\s*(to the power of|power of)\s*(\d+)", r"(\1**\3)", query_lower)
 
-    # Remove filler words
-    query_clean = re.sub(r"(calculate|solve|what is|evaluate|find|equals|the|answer|result of)", "", query_lower)
-    query_clean = re.sub(r"[^0-9+\-*/(). ]", "", query_clean).strip()
+    # Normalize math operators
+    query_lower = query_lower.replace("divided by", "/")
+    query_lower = query_lower.replace("over", "/")
+    query_lower = query_lower.replace("multiplied by", "*")
+    query_lower = query_lower.replace("times", "*")
+    query_lower = query_lower.replace("x", "*")
+    query_lower = query_lower.replace("into", "*")
+    query_lower = query_lower.replace("plus", "+")
+    query_lower = query_lower.replace("minus", "-")
+    query_lower = query_lower.replace("subtracted by", "-")
 
-    # If the query is empty, stop
+    # Remove unwanted characters
+    query_clean = re.sub(r"[^0-9+\-*/(). ]", "", query_lower).strip()
+
     if not query_clean:
-        return "Sorry, I couldn't understand the math expression."
+        return "Sorry, I couldn't calculate that."
 
-    # Try evaluating with eval()
     try:
         result = eval(query_clean)
-        return f"The answer is {result}."
-    except Exception:
-        # Try WolframAlpha as a backup
+        if isinstance(result, float) and result.is_integer():
+            result = int(result)
+        return f"The answer is: {result}"
+    except Exception as e:
         try:
             res = client.query(query)
             answer = next(res.results).text
-            return f"The answer is {answer}."
+            return f"The answer is: {answer}"
         except:
             return "Sorry, I couldn't calculate that."
 
