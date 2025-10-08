@@ -5,251 +5,221 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>AI Aura — Personal Assistant</title>
 <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712100.png">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        accent1: '#00f0d1',
+        accent2: '#ff2ec4',
+        accent3: '#6ea8ff',
+        muted: '#a8f0ee33',
+      },
+      boxShadow: {
+        glass: '0 10px 40px rgba(11,14,26,0.6)',
+        neon: '0 12px 60px rgba(0,0,0,0.6)',
+      },
+    }
+  }
+}
+</script>
 
 <style>
-  :root{
-    --bg1:#05060a;
-    --glass: rgba(255,255,255,0.04);
-    --accent1: #00f0d1;
-    --accent2: #ff2ec4;
-    --accent3: #6ea8ff;
-    --muted:#a8f0ee33;
-  }
-  *{box-sizing:border-box}
-  body {
+body {
   background:
     radial-gradient(800px 400px at 20% 20%, rgba(0, 255, 255, 0.15), transparent 70%),
     radial-gradient(700px 300px at 80% 80%, rgba(59, 130, 246, 0.12), transparent 70%),
     #001322;
 }
-
-  .stage{ width:100%; max-width:1100px; padding:36px; display:grid; grid-template-columns: 360px 1fr; gap:28px; align-items:start; }
-  .panel-left{ background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border-radius:20px; padding:22px; border:1px solid rgba(110,168,255,0.06); box-shadow: 0 10px 40px rgba(11,14,26,0.6); position:relative; overflow:hidden; min-height:520px; }
-  .orb-wrap{ display:flex; flex-direction:column; align-items:center; gap:18px; margin-top:6px; }
-  .orb{ width:160px;height:160px;border-radius:50%; background: radial-gradient(circle at 30% 30%, rgba(0,240,209,0.18), rgba(110,168,255,0.06) 40%, transparent 60%); border:1px solid rgba(110,168,255,0.12); box-shadow: 0 10px 40px rgba(110,168,255,0.07), inset 0 -10px 30px rgba(0,0,0,0.25); display:flex;align-items:center;justify-content:center; transition:transform .22s ease, box-shadow .22s ease; position:relative; }
-  .orb::after{ content:''; position:absolute; inset:0; border-radius:50%; background: conic-gradient(from 120deg, rgba(0,240,209,0.06), rgba(110,168,255,0.03)); mix-blend-mode: screen; }
-  .orb-pulse{ position:absolute; inset:-8px;border-radius:50%; pointer-events:none; box-shadow: 0 0 40px rgba(0,240,209,0.06), 0 0 80px rgba(110,168,255,0.03); opacity:0; transform:scale(.9); transition:opacity .18s ease, transform .18s ease; }
-  .orb.listening{ transform:scale(1.03); }
-  .orb.listening .orb-pulse{ opacity:1; transform:scale(1.12); }
-  .orb-icon{ width:86px;height:86px;border-radius:50%; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); display:flex;align-items:center;justify-content:center; color:var(--accent3); font-weight:700;font-size:20px; letter-spacing:0.6px; text-shadow: 0 6px 24px rgba(110,168,255,0.08); }
-  .status{ font-size:13px;color:var(--muted); text-align:center; }
-  .quick-actions{ margin-top:18px; display:flex; flex-direction:column; gap:10px; }
-  .qa-btn{ display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px; background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); border:1px solid rgba(255,255,255,0.03); cursor:pointer; color:#dff; transition:transform .14s ease, box-shadow .14s ease; }
-  .qa-btn:hover{ transform:translateY(-4px); box-shadow:0 10px 30px rgba(0,0,0,0.5);}
-  .qa-icon{ width:38px;height:38px;border-radius:10px; display:flex;align-items:center;justify-content:center; background:linear-gradient(135deg,var(--accent1),var(--accent3)); color:#001726; font-weight:700; box-shadow:0 6px 20px rgba(0,240,209,0.12); }
-  .micro-wave{ margin-top:18px; height:40px; display:flex; gap:6px; align-items:end; justify-content:center; }
-  .bar{ width:6px; background:linear-gradient(180deg,var(--accent2),var(--accent1)); border-radius:3px; height:6px; transform-origin:bottom center; opacity:0.9; transition:height .08s linear; }
-
-  .panel-right{ background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:20px; padding:18px; border:1px solid rgba(0,255,255,0.05); box-shadow: 0 12px 60px rgba(0,0,0,0.6); min-height:520px; display:flex; flex-direction:column; }
-  .chat-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
-  .chat-title{ font-weight:700; font-size:18px; color:#e8ffff; display:flex; gap:10px; align-items:center;}
-  .chip{ background:linear-gradient(90deg, rgba(0,240,209,0.08), rgba(110,168,255,0.04)); padding:6px 10px; border-radius:999px; font-size:12px; color:var(--muted); border:1px solid rgba(0,240,209,0.03);}
-  #chatbox-area{ flex:1; overflow:auto; padding:12px; display:flex; flex-direction:column; gap:8px; }
-  .msg-user{ align-self:flex-end; background:linear-gradient(135deg,#00c6ff,#0072ff); padding:12px 16px; border-radius:14px; color:#001726; max-width:72%; word-wrap:break-word; box-shadow:0 8px 24px rgba(0,114,255,0.18); }
-  .msg-assistant{ align-self:flex-start; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px 16px; border-radius:14px; color:#e2fbfa; border-left:3px solid rgba(0,240,209,0.18); max-width:78%; word-wrap:break-word; box-shadow:0 6px 18px rgba(0,0,0,0.45);}
-  .typewriter { display:inline-block; white-space:pre-wrap; overflow:hidden; }
-  .compose{ margin-top:14px; display:flex; gap:10px; align-items:center; padding:12px;border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border:1px solid rgba(0,255,255,0.04); }
-  .input{ flex:1; background:transparent; border:none; outline:none; color:#dff; font-size:15px; padding:8px; }
-  .cta{ background:linear-gradient(90deg,var(--accent2),var(--accent1)); padding:10px 14px; border-radius:12px; color:#001726; font-weight:700; cursor:pointer; border:none; box-shadow:0 10px 30px rgba(255,46,196,0.07); }
-  @media (max-width:940px){ .stage{ grid-template-columns: 1fr; padding:20px; gap:16px;} .panel-left{ order:2; min-height:160px; display:flex; align-items:center; justify-content:center; } }
+.typewriter { display:inline-block; white-space:pre-wrap; overflow:hidden; }
+.orb::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:9999px;
+  background: conic-gradient(from 120deg, rgba(0,240,209,0.06), rgba(110,168,255,0.03));
+  mix-blend-mode: screen;
+}
 </style>
 </head>
-<body>
-  <div class="stage" role="main">
-    <aside class="panel-left" aria-hidden="false">
-      <div style="display:flex;flex-direction:column;align-items:center;">
-        <div class="orb-wrap">
-          <div id="orb" class="orb" aria-hidden="true">
-            <div class="orb-pulse"></div>
-            <div class="orb-icon">AURA</div>
-          </div>
-          <div class="status" id="statusText">Ready — say "Open browser" or ask me anything</div>
-          <div class="micro-wave" id="wave">
-            <div class="bar" style="height:6px"></div>
-            <div class="bar" style="height:14px"></div>
-            <div class="bar" style="height:8px"></div>
-            <div class="bar" style="height:18px"></div>
-            <div class="bar" style="height:10px"></div>
-          </div>
+
+<body class="text-white flex justify-center min-h-screen items-start py-10">
+
+<div class="grid grid-cols-1 md:grid-cols-[360px_1fr] gap-6 w-full max-w-6xl px-4">
+
+  <!-- LEFT PANEL -->
+  <aside class="bg-white/5 border border-white/10 rounded-2xl p-6 shadow-glass relative overflow-hidden min-h-[520px] flex flex-col items-center">
+    <div class="flex flex-col items-center gap-4 mt-2">
+      <div id="orb" class="orb relative w-40 h-40 rounded-full border border-accent3/20 flex items-center justify-center shadow-inner transition-transform duration-200">
+        <div class="absolute inset-[-8px] rounded-full opacity-0 scale-90 transition-all duration-200"></div>
+        <div class="orb-icon w-[86px] h-[86px] rounded-full bg-white/5 flex items-center justify-center text-accent3 font-bold text-lg">AURA</div>
+      </div>
+      <div id="statusText" class="text-xs text-[var(--muted)] text-center opacity-70">Ready — say "Open browser" or ask me anything</div>
+      <div id="wave" class="flex items-end justify-center gap-[6px] mt-3 h-10">
+        <div class="bar w-[6px] h-[6px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
+        <div class="bar w-[6px] h-[14px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
+        <div class="bar w-[6px] h-[8px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
+        <div class="bar w-[6px] h-[18px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
+        <div class="bar w-[6px] h-[10px] bg-gradient-to-b from-[var(--accent2)] to-[var(--accent1)] rounded"></div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3 w-full mt-6">
+      <button class="qa-btn flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 text-cyan-100 hover:-translate-y-1 transition transform hover:shadow-xl" onclick="prefill('Open browser')">
+        <div class="qa-icon w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-accent1 to-accent3 text-[#001726] font-bold shadow-lg">G</div>
+        <div class="flex-1">
+          <div class="font-bold">Open Browser</div>
+          <div class="text-xs text-[var(--muted)]">Opens Google in a new tab</div>
         </div>
+      </button>
 
-        <div class="quick-actions" style="width:100%; margin-top:18px;">
-          <button class="qa-btn" onclick="prefill('Open browser')">
-            <div class="qa-icon">G</div>
-            <div style="flex:1">
-              <div style="font-weight:700">Open Browser</div>
-              <div style="font-size:12px;color:var(--muted)">Opens Google in a new tab</div>
-            </div>
-          </button>
-
-          <button class="qa-btn" onclick="prefill('Open YouTube')">
-            <div class="qa-icon" style="background:linear-gradient(135deg,#ff2ec4,#6ea8ff)">YT</div>
-            <div style="flex:1">
-              <div style="font-weight:700">Open YouTube</div>
-              <div style="font-size:12px;color:var(--muted)">Opens YouTube in a new tab</div>
-            </div>
-          </button>
+      <button class="qa-btn flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 text-cyan-100 hover:-translate-y-1 transition transform hover:shadow-xl" onclick="prefill('Open YouTube')">
+        <div class="qa-icon w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#ff2ec4] to-[#6ea8ff] text-[#001726] font-bold shadow-lg">YT</div>
+        <div class="flex-1">
+          <div class="font-bold">Open YouTube</div>
+          <div class="text-xs text-[var(--muted)]">Opens YouTube in a new tab</div>
         </div>
-      </div>
-    </aside>
+      </button>
+    </div>
+  </aside>
 
-    <section class="panel-right" aria-label="Chat">
-      <div class="chat-top">
-        <div class="chat-title">AI Aura <span style="font-size:12px;color:var(--muted);font-weight:600">• Live Assistant</span></div>
-        <div class="chip" id="chip">Voice: Female</div>
-      </div>
+  <!-- RIGHT PANEL -->
+  <section class="bg-white/5 border border-cyan-400/10 rounded-2xl p-4 flex flex-col shadow-neon min-h-[520px]">
+    <div class="flex items-center justify-between mb-3">
+      <div class="text-lg font-bold flex items-center gap-2">AI Aura <span class="text-xs text-[var(--muted)] font-semibold">• Live Assistant</span></div>
+      <div id="chip" class="bg-gradient-to-r from-accent1/20 to-accent3/10 px-3 py-1 text-xs rounded-full border border-accent1/10 text-[var(--muted)]">Voice: Female</div>
+    </div>
 
-      <div id="chatbox-area"></div>
+    <div id="chatbox-area" class="flex-1 overflow-auto flex flex-col gap-2 p-3"></div>
 
-      <div class="compose" role="form" aria-label="Send message">
-        <input id="inputField" class="input" placeholder="Type or press 🎤 to speak..." autocomplete="off" />
-        <button class="cta" id="sendBtn" title="Send">Send</button>
-        <button class="cta" id="micBtn" title="Speak">🎤</button>
-      </div>
-    </section>
-  </div>
+    <div class="mt-3 flex gap-2 items-center p-3 rounded-xl bg-white/5 border border-cyan-400/10">
+      <input id="inputField" class="flex-1 bg-transparent outline-none text-cyan-100 text-sm p-2" placeholder="Type or press 🎤 to speak..." autocomplete="off" />
+      <button id="sendBtn" class="bg-gradient-to-r from-accent2 to-accent1 px-4 py-2 rounded-lg text-[#001726] font-bold shadow-md">Send</button>
+      <button id="micBtn" class="bg-gradient-to-r from-accent2 to-accent1 px-4 py-2 rounded-lg text-[#001726] font-bold shadow-md">🎤</button>
+    </div>
+  </section>
+</div>
 
 <script>
-const orb = document.getElementById('orb');
-const statusText = document.getElementById('statusText');
-const waveBars = document.querySelectorAll('.bar');
-const chatArea = document.getElementById('chatbox-area');
-const input = document.getElementById('inputField');
-const sendBtn = document.getElementById('sendBtn');
-const micBtn = document.getElementById('micBtn');
-
-let voicesReady = false;
-let femaleVoice = null;
+// ------------------- Voice Setup -------------------
+let voicesReady=false, femaleVoice=null;
 function loadVoices(){
-  let vs = speechSynthesis.getVoices();
-  if(vs.length === 0){ setTimeout(loadVoices,200); return; }
-  voicesReady = true;
-  femaleVoice = vs.find(v => v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('female'));
+  let vs=speechSynthesis.getVoices();
+  if(vs.length===0){ setTimeout(loadVoices,200); return; }
+  voicesReady=true;
+  femaleVoice=vs.find(v=>v.name.toLowerCase().includes('zira')||v.name.toLowerCase().includes('samantha')||v.name.toLowerCase().includes('female'));
 }
 loadVoices();
-speechSynthesis.onvoiceschanged = loadVoices;
+speechSynthesis.onvoiceschanged=loadVoices;
 
 function speak(text){
   if(!('speechSynthesis' in window)) return;
   if(!voicesReady) loadVoices();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-US';
-  if(femaleVoice) u.voice = femaleVoice;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';
+  if(femaleVoice) u.voice=femaleVoice;
   if(speechSynthesis.speaking) speechSynthesis.cancel();
   speechSynthesis.speak(u);
 }
 
-function addUserMessage(txt){
-  const el = document.createElement('div');
-  el.className = 'msg-user';
-  el.textContent = txt;
-  chatArea.appendChild(el);
-  chatArea.scrollTop = chatArea.scrollHeight;
-}
-
-function addAssistantMessageTyped(txt, openUrl, speakText = null){
-  const el = document.createElement('div');
-  el.className = 'msg-assistant';
-  const tw = document.createElement('span');
-  tw.className = 'typewriter';
-  el.appendChild(tw);
-  chatArea.appendChild(el);
-  chatArea.scrollTop = chatArea.scrollHeight;
-
-  let i=0, speed=18;
-  function type(){
-    if(i<=txt.length){
-      tw.textContent = txt.slice(0,i);
-      i++;
-      chatArea.scrollTop = chatArea.scrollHeight;
-      setTimeout(type,speed);
-    } else {
-      if(speakText) speak(speakText);
-      else if(txt) speak(txt);
-      if(openUrl){
-        const link = document.createElement('a');
-        link.href = openUrl;
-        link.target = '_blank';
-        link.textContent = 'Open Link';
-        link.style.display='block';
-        link.style.marginTop='4px';
-        link.style.color='#00f0d1';
-        link.style.fontWeight='700';
-        el.appendChild(link);
-      }
-    }
-  }
-  type();
-}
+// ------------------- Chat & Wave -------------------
+const orb=document.getElementById('orb');
+const statusText=document.getElementById('statusText');
+const waveBars=document.querySelectorAll('.bar');
+const chatArea=document.getElementById('chatbox-area');
+const input=document.getElementById('inputField');
+const sendBtn=document.getElementById('sendBtn');
+const micBtn=document.getElementById('micBtn');
 
 function animateWave(active){
   if(active){
-    orb.classList.add('listening');
+    orb.classList.add('scale-105');
     statusText.textContent='Listening...';
-    waveBars.forEach((b)=>b.style.height=8+Math.round(Math.random()*28)+'px');
     window.waveInterval=setInterval(()=>{ waveBars.forEach(b=>b.style.height=(6+Math.random()*30)+'px'); },120);
   } else {
-    orb.classList.remove('listening');
+    orb.classList.remove('scale-105');
     statusText.textContent='Ready — say "Open browser" or ask me anything';
     clearInterval(window.waveInterval);
     waveBars.forEach(b=>b.style.height='8px');
   }
 }
 
-function prefill(txt){ input.value=txt; input.focus(); }
+function addUserMessage(txt){
+  const el=document.createElement('div');
+  el.className='self-end bg-gradient-to-br from-[#00c6ff] to-[#0072ff] p-3 rounded-xl text-[#001726] max-w-[72%] shadow-lg';
+  el.textContent=txt;
+  chatArea.appendChild(el);
+  chatArea.scrollTop=chatArea.scrollHeight;
+}
 
-let recog=null;
+function addAssistantMessageTyped(txt){
+  const el=document.createElement('div');
+  el.className='self-start bg-white/10 border-l-2 border-accent1/30 p-3 rounded-xl text-cyan-50 max-w-[78%] shadow-md';
+  const tw=document.createElement('span');
+  tw.className='typewriter';
+  el.appendChild(tw);
+  chatArea.appendChild(el);
+  chatArea.scrollTop=chatArea.scrollHeight;
+
+  let i=0, speed=18;
+  function type(){
+    tw.innerHTML=txt.slice(0,i);
+    i++;
+    chatArea.scrollTop=chatArea.scrollHeight;
+    if(i<=txt.length) setTimeout(type,speed);
+    else speak(tw.textContent);
+  }
+  type();
+}
+
+// ------------------- Voice Recognition -------------------
 function startListening(){
   if(!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)){
-    alert('Your browser does not support speech recognition.');
+    alert('Speech recognition not supported.');
     return;
   }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recog = new SR();
-  recog.lang='en-US'; recog.interimResults=false; recog.maxAlternatives=1;
-
-  recog.onstart = ()=>{ animateWave(true); statusText.textContent='Listening...'; micBtn.textContent='●'; };
-  recog.onerror = (e)=>{ animateWave(false); micBtn.textContent='🎤'; statusText.textContent='Ready'; console.error('Speech error',e); };
-  recog.onresult = (ev)=>{ const text=ev.results[0][0].transcript; animateWave(false); micBtn.textContent='🎤'; sendCommand(text); };
-  recog.onend = ()=>{ animateWave(false); micBtn.textContent='🎤'; };
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const recog=new SR();
+  recog.lang='en-US';
+  recog.onstart=()=>{animateWave(true);micBtn.textContent='●';};
+  recog.onend=()=>{animateWave(false);micBtn.textContent='🎤';};
+  recog.onresult=(ev)=>{const text=ev.results[0][0].transcript;animateWave(false);micBtn.textContent='🎤';sendCommand(text);};
   recog.start();
 }
 
-sendBtn.addEventListener('click',()=>{ const t=input.value.trim(); if(t) sendCommand(t); });
-input.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ const t=input.value.trim(); if(t) sendCommand(t); }});
-micBtn.addEventListener('click',()=>startListening());
-
+// ------------------- Send Command -------------------
 async function sendCommand(commandText){
   if(!commandText) return;
   addUserMessage(commandText);
   input.value='';
   statusText.textContent='Processing...';
-  const typingEl=document.createElement('div');
-  typingEl.className='typing'; typingEl.innerHTML='<span></span><span></span><span></span>';
-  chatArea.appendChild(typingEl); chatArea.scrollTop=chatArea.scrollHeight;
 
   try{
-    const res=await fetch('/command',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({command:commandText})});
+    const res=await fetch('/command',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({command:commandText})
+    });
     const data=await res.json();
-    chatArea.removeChild(typingEl);
-
-    let reply=''; let url=null;
-    if(Array.isArray(data.response)){
-      const first=data.response[0];
-      if(typeof first==='string') reply=first;
-      else { reply=first.text; url=first.url || null; }
-    } else reply=data.response;
-
-    addAssistantMessageTyped(reply,url);
+    let reply=data.response;
+    addAssistantMessageTyped(reply);
     statusText.textContent='Responded';
-  } catch(err){
-    if(typingEl.parentNode) chatArea.removeChild(typingEl);
-    addAssistantMessageTyped("⚠ Unable to reach the server. Check the backend and try again.");
+  }catch(e){
+    addAssistantMessageTyped('⚠ Unable to reach the server.');
     statusText.textContent='Error';
-  } finally { animateWave(false); }
+  }
 }
 
-window.addEventListener('load',()=>{ setTimeout(()=>addAssistantMessageTyped("Hi — I'm Aura. I can open your browser, YouTube, or answer any questions.",null),600); });
+// ------------------- Event Listeners -------------------
+sendBtn.addEventListener('click',()=>{const t=input.value.trim();if(t)sendCommand(t);});
+input.addEventListener('keydown',(e)=>{if(e.key==='Enter'){const t=input.value.trim();if(t)sendCommand(t);}});
+micBtn.addEventListener('click',()=>startListening());
+
+window.addEventListener('load',()=>{setTimeout(()=>addAssistantMessageTyped("Hi — I'm Aura. I can open your browser, YouTube, or answer any questions."),600);});
+function prefill(txt){input.value=txt;input.focus();}
 </script>
+
 </body>
 </html>
