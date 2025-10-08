@@ -53,7 +53,7 @@ def solve_math(query):
     query_lower = re.sub(r"cube of (\d+)", r"(\1**3)", query_lower)
     query_lower = re.sub(r"(\d+)\s+to the power of\s+(\d+)", r"(\1**\2)", query_lower)
     query_lower = query_lower.replace("divided by", "/").replace("over", "/")
-    query_lower = query_lower.replace("multiplied by", "").replace("times", "")
+    query_lower = query_lower.replace("multiplied by", "*").replace("times", "*")
     query_lower = query_lower.replace("plus", "+").replace("minus", "-").replace("subtracted by","-")
     query_clean = re.sub(r"[^0-9+\-*/(). ]", "", query_lower)
 
