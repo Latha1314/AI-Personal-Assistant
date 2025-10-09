@@ -23,7 +23,7 @@ wolframalpha (or Python’s eval) – for solving math and knowledge queries
 Frontend:
 HTML, CSS, JavaScript (simple chat-style interface)
 
-Live demo of key features
+Live demo of key features:
 🕒 Telling the time
 🧮 Solving math problems
 🌐 Searching the web
@@ -41,7 +41,7 @@ python app.py
 5. Open your browser and go to
 http://127.0.0.1:5000
 
-🗣 Features
+🗣 Features:
 🎤 Speech-to-text input using SpeechRecognition
 🔊 Voice responses using pyttsx3
 🕒 Get the current time
