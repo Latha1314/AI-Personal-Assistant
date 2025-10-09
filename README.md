@@ -4,11 +4,11 @@ A simple AI-powered personal assistant built with Python + Flask that can talk, 
 🎥 Watch the full demo on YouTube:
 "https://youtu.be/rmmrn1yOnk8"
 
-🧠 About Aura
+🧠 About Aura:
 Aura is a simple yet powerful AI personal assistant designed to respond to voice and text commands.
 It performs everyday tasks like telling the time, solving math problems, searching the web, and setting reminders — with natural voice interaction.
 
-🏗 Tech Stack
+🏗 Tech Stack --
 Backend:
 Python
 Flask
